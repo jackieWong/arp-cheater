@@ -7,6 +7,20 @@ struct eth_header
 	u_int16_t ether_type;
 };
 
+struct arp_packet
+{
+	u_int16_t hw_type;
+	u_int16_t proto_type;
+	u_int8_t hw_add_len;
+	u_int8_t pro_add_len;
+	u_int16_t op;
+	u_int8_t ether_shost[6];
+	u_int8_t ip_shost[4];
+	u_int8_t ether_dhost[6];
+	u_int8_t ip_dhost[4];
+};
+
+
 int main(int argc, char **argv)
 {
 	//char *dev = argv[1];
@@ -52,7 +66,7 @@ int main(int argc, char **argv)
 	const u_char *packet;
 	struct pcap_pkthdr header;	
 	packet = pcap_next(handle, &header);
-	printf("packet header length: %u\n", header.len);
+	printf("packet header length: %d\n", header.len);
 
 	struct eth_header *eptr = (struct eth_header *) packet;
 	
@@ -71,7 +85,41 @@ int main(int argc, char **argv)
 		eptr->ether_shost[4],
 		eptr->ether_shost[5]);
 		
-
+	struct arp_packet * arpptr = (struct arp_packet *)(packet + 14);
+	printf("Hardware type:%x\n\
+Proto	type:%x\n\
+Hardware address len:%x\n\
+Proto address len:%x\n\
+Operator:%x\n\
+Ethernet source address:%x:%x:%x:%x:%x:%x\n\
+Ip	source address:%x.%x.%x.%x\n\
+Ethernet dest address:%x:%x:%x:%x:%x:%x\n\
+Ip	dest address:%x.%x.%x.%x\n",
+		ntohs(arpptr->hw_type),
+		ntohs(arpptr->proto_type),
+		arpptr->hw_add_len,
+		arpptr->pro_add_len,
+		ntohs(arpptr->op),
+		arpptr->ether_shost[0],
+		arpptr->ether_shost[1],
+		arpptr->ether_shost[2],
+		arpptr->ether_shost[3],
+		arpptr->ether_shost[4],
+		arpptr->ether_shost[5],	
+		arpptr->ip_shost[0],
+		arpptr->ip_shost[1],
+		arpptr->ip_shost[2],
+		arpptr->ip_shost[3],
+		arpptr->ether_dhost[0],
+		arpptr->ether_dhost[1],
+		arpptr->ether_dhost[2],
+		arpptr->ether_dhost[3],
+		arpptr->ether_dhost[4],
+		arpptr->ether_dhost[5],	
+		arpptr->ip_dhost[0],
+		arpptr->ip_dhost[1],
+		arpptr->ip_dhost[2],
+		arpptr->ip_dhost[3]);
 
 	//for(i = 0 ; i < header.len; i++) {
 	//	nprintf("%x", packet,);	
