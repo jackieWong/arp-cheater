@@ -47,7 +47,7 @@ void cheat_handler(u_char *useless, const struct pcap_pkthdr *pcap_hdr, const u_
 		eptr->ether_shost[5]);
 		
 	struct arp_packet * arpptr = (struct arp_packet *)(packet + 14);
-	if(ntohs(arpptr->op) == 2)  // if arp packet is a request packet 
+	if(ntohs(arpptr->op) == 1)  // if arp packet is a request packet 
 	{	printf("Hardware type:%x\n\
 Proto	type:%x\n\
 Hardware address len:%x\n\
